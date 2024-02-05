@@ -5,9 +5,9 @@ import (
 	"io"
 	"runtime"
 
-	"go-eccodes/debug"
-	cio "go-eccodes/io"
-	"go-eccodes/native"
+	"github.com/tlarsendataguy/go-eccodes/debug"
+	cio "github.com/tlarsendataguy/go-eccodes/io"
+	"github.com/tlarsendataguy/go-eccodes/native"
 )
 
 type Reader interface {

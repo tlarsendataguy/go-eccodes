@@ -3,8 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	codes "go-eccodes"
-	cio "go-eccodes/io"
+	codes "github.com/tlarsendataguy/go-eccodes"
+	cio "github.com/tlarsendataguy/go-eccodes/io"
 	"io"
 	"log"
 	"runtime/debug"

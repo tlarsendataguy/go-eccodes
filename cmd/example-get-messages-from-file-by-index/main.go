@@ -3,13 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	codes "github.com/tlarsendataguy/go-eccodes"
 	"io"
 	"log"
 	"runtime/debug"
 	"time"
 	"unsafe"
-
-	"go-eccodes"
 )
 
 func main() {

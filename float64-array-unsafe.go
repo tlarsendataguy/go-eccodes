@@ -4,8 +4,8 @@ import (
 	"runtime"
 	"unsafe"
 
-	"go-eccodes/debug"
-	"go-eccodes/native"
+	"github.com/tlarsendataguy/go-eccodes/debug"
+	"github.com/tlarsendataguy/go-eccodes/native"
 )
 
 type Float64ArrayUnsafe struct {

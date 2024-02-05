@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"unsafe"
 
-	"go-eccodes/debug"
+	"github.com/tlarsendataguy/go-eccodes/debug"
 )
 
 const MaxStringLength = 1030
