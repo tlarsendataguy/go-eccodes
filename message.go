@@ -4,8 +4,8 @@ import (
 	"math"
 	"runtime"
 
-	"github.com/amsokol/go-eccodes/debug"
-	"github.com/amsokol/go-eccodes/native"
+	"go-eccodes/debug"
+	"go-eccodes/native"
 )
 
 type Message interface {
@@ -26,15 +26,15 @@ type Message interface {
 }
 
 type message struct {
-	handle native.Ccodes_handle
+	handle native.CcodesHandle
 }
 
-func newMessage(h native.Ccodes_handle) Message {
+func newMessage(h native.CcodesHandle) Message {
 	m := &message{handle: h}
 	runtime.SetFinalizer(m, messageFinalizer)
 
 	// set missing value to NaN
-	m.SetDouble(parameterMissingValue, math.NaN())
+	_ = m.SetDouble(parameterMissingValue, math.NaN())
 
 	return m
 }
@@ -44,31 +44,31 @@ func (m *message) isOpen() bool {
 }
 
 func (m *message) GetString(key string) (string, error) {
-	return native.Ccodes_get_string(m.handle, key)
+	return native.CcodesGetString(m.handle, key)
 }
 
 func (m *message) GetLong(key string) (int64, error) {
-	return native.Ccodes_get_long(m.handle, key)
+	return native.CcodesGetLong(m.handle, key)
 }
 
 func (m *message) SetLong(key string, value int64) error {
-	return native.Ccodes_set_long(m.handle, key, value)
+	return native.CcodesSetLong(m.handle, key, value)
 }
 
 func (m *message) GetDouble(key string) (float64, error) {
-	return native.Ccodes_get_double(m.handle, key)
+	return native.CcodesGetDouble(m.handle, key)
 }
 
 func (m *message) SetDouble(key string, value float64) error {
-	return native.Ccodes_set_double(m.handle, key, value)
+	return native.CcodesSetDouble(m.handle, key, value)
 }
 
 func (m *message) Data() (latitudes []float64, longitudes []float64, values []float64, err error) {
-	return native.Ccodes_grib_get_data(m.handle)
+	return native.CcodesGribGetData(m.handle)
 }
 
 func (m *message) DataUnsafe() (latitudes *Float64ArrayUnsafe, longitudes *Float64ArrayUnsafe, values *Float64ArrayUnsafe, err error) {
-	lats, lons, vals, err := native.Ccodes_grib_get_data_unsafe(m.handle)
+	lats, lons, vals, err := native.CcodesGribGetDataUnsafe(m.handle)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -77,12 +77,12 @@ func (m *message) DataUnsafe() (latitudes *Float64ArrayUnsafe, longitudes *Float
 
 func (m *message) Close() error {
 	defer func() { m.handle = nil }()
-	return native.Ccodes_handle_delete(m.handle)
+	return native.CcodesHandleDelete(m.handle)
 }
 
 func messageFinalizer(m *message) {
 	if m.isOpen() {
 		debug.MemoryLeakLogger.Print("message is not closed")
-		m.Close()
+		_ = m.Close()
 	}
 }

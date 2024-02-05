@@ -5,12 +5,11 @@ package native
 */
 import "C"
 import (
+	"errors"
 	"unsafe"
-
-	"github.com/amsokol/go-errors"
 )
 
-func Ccodes_keys_iterator_new(handle Ccodes_handle, flags int, namespace string) Ccodes_keys_iterator {
+func CcodesKeysIteratorNew(handle CcodesHandle, flags int, namespace string) CcodesKeysIterator {
 	var cNamespace *C.char
 
 	if len(namespace) > 0 {
@@ -21,18 +20,18 @@ func Ccodes_keys_iterator_new(handle Ccodes_handle, flags int, namespace string)
 	return unsafe.Pointer(C.codes_keys_iterator_new((*C.codes_handle)(handle), C.ulong(Culong(flags)), nil))
 }
 
-func Ccodes_keys_iterator_next(kiter Ccodes_keys_iterator) int {
+func CcodesKeysIteratorNext(kiter CcodesKeysIterator) int {
 	return int(C.codes_keys_iterator_next((*C.codes_keys_iterator)(kiter)))
 }
 
-func Ccodes_keys_iterator_get_name(kiter Ccodes_keys_iterator) string {
+func CcodesKeysIteratorGetName(kiter CcodesKeysIterator) string {
 	return C.GoString(C.codes_keys_iterator_get_name((*C.codes_keys_iterator)(kiter)))
 }
 
-func Ccodes_keys_iterator_delete(kiter Ccodes_keys_iterator) error {
+func CcodesKeysIteratorDelete(kiter CcodesKeysIterator) error {
 	err := C.codes_keys_iterator_delete((*C.codes_keys_iterator)(kiter))
 	if err != 0 {
-		return errors.New(Cgrib_get_error_message(int(err)))
+		return errors.New(CgribGetErrorMessage(int(err)))
 	}
 	return nil
 }

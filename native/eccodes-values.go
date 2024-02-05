@@ -5,17 +5,17 @@ package native
 */
 import "C"
 import (
+	"errors"
+	"fmt"
 	"unsafe"
 
-	"github.com/amsokol/go-errors"
-
-	"github.com/amsokol/go-eccodes/debug"
+	"go-eccodes/debug"
 )
 
 const MaxStringLength = 1030
 const ParameterNumberOfPoints = "numberOfDataPoints"
 
-func Ccodes_get_long(handle Ccodes_handle, key string) (int64, error) {
+func CcodesGetLong(handle CcodesHandle, key string) (int64, error) {
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cKey))
 
@@ -23,25 +23,25 @@ func Ccodes_get_long(handle Ccodes_handle, key string) (int64, error) {
 	cValue := (*C.long)(unsafe.Pointer(&value))
 	err := C.codes_get_long((*C.codes_handle)(handle), cKey, cValue)
 	if err != 0 {
-		return 0, errors.New(Cgrib_get_error_message(int(err)))
+		return 0, errors.New(CgribGetErrorMessage(int(err)))
 	}
 
 	return int64(value), nil
 }
 
-func Ccodes_set_long(handle Ccodes_handle, key string, value int64) error {
+func CcodesSetLong(handle CcodesHandle, key string, value int64) error {
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cKey))
 
 	err := C.codes_set_long((*C.codes_handle)(handle), cKey, C.long(Clong(value)))
 	if err != 0 {
-		return errors.New(Cgrib_get_error_message(int(err)))
+		return errors.New(CgribGetErrorMessage(int(err)))
 	}
 
 	return nil
 }
 
-func Ccodes_get_double(handle Ccodes_handle, key string) (float64, error) {
+func CcodesGetDouble(handle CcodesHandle, key string) (float64, error) {
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cKey))
 
@@ -49,25 +49,25 @@ func Ccodes_get_double(handle Ccodes_handle, key string) (float64, error) {
 	cValue := (*C.double)(unsafe.Pointer(&value))
 	err := C.codes_get_double((*C.codes_handle)(handle), cKey, cValue)
 	if err != 0 {
-		return 0, errors.New(Cgrib_get_error_message(int(err)))
+		return 0, errors.New(CgribGetErrorMessage(int(err)))
 	}
 
 	return float64(value), nil
 }
 
-func Ccodes_set_double(handle Ccodes_handle, key string, value float64) error {
+func CcodesSetDouble(handle CcodesHandle, key string, value float64) error {
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cKey))
 
 	err := C.codes_set_double((*C.codes_handle)(handle), cKey, C.double(Cdouble(value)))
 	if err != 0 {
-		return errors.New(Cgrib_get_error_message(int(err)))
+		return errors.New(CgribGetErrorMessage(int(err)))
 	}
 
 	return nil
 }
 
-func Ccodes_get_string(handle Ccodes_handle, key string) (string, error) {
+func CcodesGetString(handle CcodesHandle, key string) (string, error) {
 	cKey := C.CString(key)
 	defer C.free(unsafe.Pointer(cKey))
 
@@ -76,7 +76,7 @@ func Ccodes_get_string(handle Ccodes_handle, key string) (string, error) {
 
 	err := C.codes_get_length((*C.codes_handle)(handle), cKey, cLength)
 	if err != 0 {
-		return "", errors.New(Cgrib_get_error_message(int(err)))
+		return "", errors.New(CgribGetErrorMessage(int(err)))
 	}
 	// +1 byte for '\0'
 	length++
@@ -96,7 +96,7 @@ func Ccodes_get_string(handle Ccodes_handle, key string) (string, error) {
 	cBytes = (*C.char)(unsafe.Pointer(&result[0]))
 	err = C.codes_get_string((*C.codes_handle)(handle), cKey, cBytes, cLength)
 	if err != 0 {
-		return "", errors.New(Cgrib_get_error_message(int(err)))
+		return "", errors.New(CgribGetErrorMessage(int(err)))
 	}
 
 	if length == 0 {
@@ -105,11 +105,11 @@ func Ccodes_get_string(handle Ccodes_handle, key string) (string, error) {
 	return string(result[:length-1]), nil
 }
 
-func Ccodes_grib_get_data(handle Ccodes_handle) (latitudes []float64, longitudes []float64, values []float64, err error) {
+func CcodesGribGetData(handle CcodesHandle) (latitudes []float64, longitudes []float64, values []float64, err error) {
 
-	size, err := Ccodes_get_long(handle, ParameterNumberOfPoints)
+	size, err := CcodesGetLong(handle, ParameterNumberOfPoints)
 	if err != nil {
-		return nil, nil, nil, errors.Wrapf(err, "failed to get long value of '%s'", ParameterNumberOfPoints)
+		return nil, nil, nil, fmt.Errorf("failed to get long value of '%s': %w", ParameterNumberOfPoints, err)
 	}
 
 	latitudes = make([]float64, size)
@@ -123,17 +123,17 @@ func Ccodes_grib_get_data(handle Ccodes_handle) (latitudes []float64, longitudes
 
 	res := C.codes_grib_get_data((*C.codes_handle)(handle), cLatitudes, cLongitudes, cValues)
 	if res != 0 {
-		return nil, nil, nil, errors.New(Cgrib_get_error_message(int(res)))
+		return nil, nil, nil, errors.New(CgribGetErrorMessage(int(res)))
 	}
 
 	return latitudes, longitudes, values, nil
 }
 
-func Ccodes_grib_get_data_unsafe(handle Ccodes_handle) (latitudes unsafe.Pointer, longitudes unsafe.Pointer, values unsafe.Pointer, err error) {
+func CcodesGribGetDataUnsafe(handle CcodesHandle) (latitudes unsafe.Pointer, longitudes unsafe.Pointer, values unsafe.Pointer, err error) {
 
-	size, err := Ccodes_get_long(handle, ParameterNumberOfPoints)
+	size, err := CcodesGetLong(handle, ParameterNumberOfPoints)
 	if err != nil {
-		return nil, nil, nil, errors.Wrapf(err, "failed to get long value of '%s'", ParameterNumberOfPoints)
+		return nil, nil, nil, fmt.Errorf("failed to get long value of '%s': %w", ParameterNumberOfPoints, err)
 	}
 
 	latitudes = Cmalloc(CsizeT(size * SizeOfFloat64))
@@ -150,7 +150,7 @@ func Ccodes_grib_get_data_unsafe(handle Ccodes_handle) (latitudes unsafe.Pointer
 		Cfree(latitudes)
 		Cfree(longitudes)
 		Cfree(values)
-		return nil, nil, nil, errors.New(Cgrib_get_error_message(int(res)))
+		return nil, nil, nil, errors.New(CgribGetErrorMessage(int(res)))
 	}
 
 	return latitudes, longitudes, values, nil

@@ -2,27 +2,26 @@ package main
 
 import (
 	"flag"
+	"fmt"
+	codes "go-eccodes"
+	cio "go-eccodes/io"
 	"io"
 	"log"
 	"runtime/debug"
 	"time"
-
-	"github.com/amsokol/go-errors"
-
-	"github.com/amsokol/go-eccodes"
-	cio "github.com/amsokol/go-eccodes/io"
 )
 
 func main() {
 	filename := flag.String("file", "", "io path, e.g. /tmp/ARPEGE_0.1_SP1_00H12H_201709290000.grib2")
 
 	flag.Parse()
+	fmt.Printf("parsing file %v", *filename)
 
 	f, err := cio.OpenFile(*filename, "r")
 	if err != nil {
 		log.Fatalf("failed to open file on file system: %s", err.Error())
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	file, err := codes.OpenFile(f)
 	if err != nil {
@@ -50,17 +49,17 @@ func process(file codes.File, n int) error {
 	if err != nil {
 		return err
 	}
-	defer msg.Close()
+	defer func() { _ = msg.Close() }()
 
 	log.Printf("============= BEGIN MESSAGE N%d ==========\n", n)
 
 	shortName, err := msg.GetString("shortName")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'shortName' value")
+		return fmt.Errorf("failed to get 'shortName' value: %v", err)
 	}
 	name, err := msg.GetString("name")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'name' value")
+		return fmt.Errorf("failed to get 'name' value: %w", err)
 	}
 
 	log.Printf("Variable = [%s](%s)\n", shortName, name)
@@ -68,7 +67,7 @@ func process(file codes.File, n int) error {
 	// just to measure timing
 	_, _, _, err = msg.Data()
 	if err != nil {
-		return errors.Wrap(err, "failed to get data (latitudes, longitudes, values)")
+		return fmt.Errorf("failed to get data (latitudes, longitudes, values): %w", err)
 	}
 
 	log.Printf("elapsed=%.0f ms", time.Since(start).Seconds()*1000)
