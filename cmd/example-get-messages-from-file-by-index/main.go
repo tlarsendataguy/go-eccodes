@@ -2,15 +2,14 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"runtime/debug"
 	"time"
 	"unsafe"
 
-	"github.com/amsokol/go-errors"
-
-	"github.com/amsokol/go-eccodes"
+	"go-eccodes"
 )
 
 func main() {
@@ -50,54 +49,54 @@ func process(file codes.File, n int) error {
 	if err != nil {
 		return err
 	}
-	defer msg.Close()
+	defer func() { _ = msg.Close() }()
 
 	log.Printf("============= BEGIN MESSAGE N%d ==========\n", n)
 
 	startStep, err := msg.GetString("startStep")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'startStep' value")
+		return fmt.Errorf("failed to get 'startStep' value: %w", err)
 	}
 	log.Printf("startStep = %s\n", startStep)
 
 	endStep, err := msg.GetString("endStep")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'endStep' value")
+		return fmt.Errorf("failed to get 'endStep' value: %w", err)
 	}
 	log.Printf("endStep = %s\n", endStep)
 
 	stepRange, err := msg.GetString("stepRange")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'stepRange' value")
+		return fmt.Errorf("failed to get 'stepRange' value: %w", err)
 	}
 	log.Printf("stepRange = %s\n", stepRange)
 
 	forecastTime, err := msg.GetString("forecastTime")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'forecastTime' value")
+		return fmt.Errorf("failed to get 'forecastTime' value: %w", err)
 	}
 	log.Printf("forecastTime = %s\n", forecastTime)
 
 	shortName, err := msg.GetString("shortName")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'shortName' value")
+		return fmt.Errorf("failed to get 'shortName' value: %w", err)
 	}
 	name, err := msg.GetString("name")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'name' value")
+		return fmt.Errorf("failed to get 'name' value: %w", err)
 	}
 
 	log.Printf("Variable = [%s](%s)\n", shortName, name)
 
 	size, err := msg.GetLong("numberOfDataPoints")
 	if err != nil {
-		return errors.Wrap(err, "failed to get 'numberOfDataPoints' value")
+		return fmt.Errorf("failed to get 'numberOfDataPoints' value: %w", err)
 	}
 
 	// just to measure timing
 	lats, lons, vals, err := msg.DataUnsafe()
 	if err != nil {
-		return errors.Wrap(err, "failed to get data (latitudes, longitudes, values)")
+		return fmt.Errorf("failed to get data (latitudes, longitudes, values): %w", err)
 	}
 	defer lats.Free()
 	defer lons.Free()

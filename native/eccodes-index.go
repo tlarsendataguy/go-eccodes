@@ -26,7 +26,7 @@ func CcodesIndexNewFromFile(ctx CcodesContext, filename string, keys string) (Cc
 	return unsafe.Pointer(idx), nil
 }
 
-func Ccodes_index_new(ctx CcodesContext, keys string) (CcodesIndex, error) {
+func CcodesIndexNew(ctx CcodesContext, keys string) (CcodesIndex, error) {
 	cKeys := C.CString(keys)
 	defer C.free(unsafe.Pointer(cKeys))
 
